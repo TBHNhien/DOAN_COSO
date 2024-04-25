@@ -1,0 +1,135 @@
+﻿@* @model PagedList.IPagedList<app.Models.User> *@
+    @model X.PagedList.IPagedList<app.Models.User>
+
+
+@* @using PagedList.Mvc; *@
+@using X.PagedList
+@using X.PagedList.Mvc.Core
+
+
+@{
+    ViewBag.Title = "Quản lý người dùng ";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+@section header{
+    Danh sách người dùng
+}
+
+@section jsFooter{
+    <script src="/assets/admin/js/controller/userController.js"></script>
+    }
+
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Danh sách người dùng </h6>
+        </div>
+        @* <form asp-action="Create" method="post" enctype="multipart/form-data"> *@
+        <div class="card-body">
+            <form asp-action="Index" method="get" enctype="multipart/form-data">
+
+                <div class="form-group row">
+                    <div class="col-lg-12">
+                        <input type="text" value="@ViewBag.SearchString" class="form-control" name="searchString" placeholder="Enter username..." />
+                    </div>
+                    <div class="col-md-4 mt-3">
+                        <button type="submit" class="btn btn-success">Tìm kiếm</button>
+                        <a class="btn btn-primary" href="@Url.Action("Create", "User")">Thêm mới</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>Email</th>
+                            <th>Tài khoản</th>
+                            <th>Tên</th>
+                            <th>Trạng Thái</th>
+                            <th>#</th>
+
+                        </tr>
+                    </thead>
+                    <tfoot>
+                        <tr>
+                            <th>Id</th>
+                            <th>Email</th>
+                            <th>Tài khoản</th>
+                            <th>Tên</th>
+                            <th>Trạng Thái</th>
+                            <th>#</th>
+
+                        </tr>
+                    </tfoot>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr id="row_@item.Id">
+                                <td>@item.Id</td>
+                                <td>@item.UserName</td>
+                                <td>@item.Name</td>
+                                <td>@item.Email</td>
+                                <td>
+                                    <a href="#" class="btn-active" data-id="@item.Id">@item.Status?"Kích hoạt":"Khóa"</a>
+                                </td>
+                                <td>
+                                    @* <a href="#" class="btn-edit" data-id="@item.Id">Edit</a> *@
+                                    <a href="/Admin/User/Edit/@item.Id" class="btn-edit">Sửa</a>
+                                    <a href="#" class="btn-delete" data-id="@item.Id">Delete</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                @Html.PagedListPager(Model, page => Url.Action("Index", new { page ,@searchString = @ViewBag.SearchString }))
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('.btn-delete').on('click', function () {
+            var id = $(this).data('id'); // lấy ID của người dùng
+            console.log(id);
+            if (confirm('Are you sure you want to delete this?')) { // xác nhận trước khi xóa
+                $.ajax({
+                    url: '/Admin/User/Delete/' + id, // URL tới action Delete
+                    type: 'DELETE', // phương thức HTTP
+                    success: function (result) {
+                        $('#row_' + id).remove(); // xóa hàng nếu thành công
+                    },
+                    error: function (err) {
+                        alert('Error: ' + err.statusText); // thông báo nếu có lỗi
+                    }
+                });
+            }
+        });
+    });
+</script>
+
+@* <script>
+    $(document).ready(function () {
+        $('.btn-edit').on('click', function () {
+            var id = $(this).data('id'); // Lấy ID từ thuộc tính dữ liệu
+            // Không cần xác nhận nếu chúng ta chỉ muốn chỉnh sửa, không phải xóa
+            $.ajax({
+                url: '/Admin/User/edit/' + id, // URL đến hành động chỉnh sửa
+                type: 'GET', // Phương thức HTTP, có thể là GET hoặc POST tùy thuộc vào biểu mẫu của bạn
+                success: function (result) {
+                    // Chuyển hướng về trang index sau khi chỉnh sửa thành công
+                    window.location.href = '/Admin/User';
+                },
+                error: function (err) {
+                    alert('Lỗi: ' + err.statusText); // Thông báo nếu có lỗi
+                }
+            });
+        });
+    });
+</script> *@

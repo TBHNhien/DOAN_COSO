@@ -1,0 +1,101 @@
+﻿@model X.PagedList.IPagedList<app.Models.ProductCategory>
+
+@using X.PagedList
+@using X.PagedList.Mvc.Core
+
+@{
+    ViewBag.Title = "Quản lý loại sản phẩm";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+@section header {
+    Danh sách loại sản phẩm
+}
+
+@section jsFooter {
+    <script src="/assets/admin/js/controller/productCategoryController.js"></script>
+}
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Danh sách loại sản phẩm</h6>
+        </div>
+        <div class="card-body">
+
+            <form asp-action="Index" method="get" enctype="multipart/form-data">
+                <div class="row form-group">
+                    <div class="col-lg-12">
+                        <div class="col-md-4">
+                            <input type="text" value="@ViewBag.SearchString" class="form-control" name="searchString" placeholder="Tìm kiếm..." />
+                        </div>
+                        <div class="col-md-4">
+                            <button type="submit" class="btn btn-success">Tìm kiếm</button>
+                            <a class="btn btn-primary" href="/Admin/ProductCategory/Create">Thêm mới</a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Tên</th>
+                            <th>Meta Title</th>
+                            <th>Trạng Thái</th>
+                            <th>#</th>
+                        </tr>
+                    </thead>
+                    <tfoot>
+                        <tr>
+                            <th>ID</th>
+                            <th>Tên</th>
+                            <th>Meta Title</th>
+                            <th>Trạng Thái</th>
+                            <th>#</th>
+                        </tr>
+                    </tfoot>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr id="row_@item.Id">
+                                <td>@item.Id</td>
+                                <td>@item.Name</td>
+                                <td>@item.MetaTitle</td>
+                                <td>@item.Status.HasValue && item.Status.Value ? "Kích hoạt" : "Khóa"</td>
+                                <td>
+                                    <a href="/Admin/ProductCategory/Edit/@item.Id" class="btn btn-primary">Sửa</a>
+                                    <a href="#" class="btn btn-danger btn-delete" data-id="@item.Id">Xoá</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                @Html.PagedListPager(Model, page => Url.Action("Index", new { page, searchString = ViewBag.SearchString }))
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('.btn-delete').on('click', function () {
+            var id = $(this).data('id');
+            if (confirm('Bạn có chắc chắn muốn xóa không?')) {
+                $.ajax({
+                    url: '/Admin/ProductCategory/Delete/' + id,
+                    type: 'POST', // Đổi thành POST nếu không sử dụng HttpDelete
+                    success: function (result) {
+                        $('#row_' + id).remove();
+                    },
+                    error: function (err) {
+                        alert('Error: ' + err.statusText);
+                    }
+                });
+            }
+        });
+    });
+</script>

@@ -1,0 +1,47 @@
+﻿@model Order
+
+
+<div class="ads-grid_shop">
+    <h4>Add a new Details</h4>
+    <form asp-action="Checkout" method="post" class="creditly-card-form agileinfo_form">
+        <section class="creditly-wrapper wrapper">
+            <div class="information-wrapper">
+                <div class="first-row form-group">
+                    <div class="card_number_grids">
+                        <div class="card_number_grid_right">
+                            <div class="controls">
+                                <label asp-for="ShipAddress" class="control-label">Address: </label>
+                                <input asp-for="ShipAddress" class="form-control" type="text" placeholder="địa chỉ">
+                            </div>
+                        </div>
+
+                        <div class="card_number_grid_left">
+                            <div class="controls">
+                                <label asp-for="ShipMobile" class="control-label">Mobile number:</label>
+                                <input asp-for="ShipMobile" class="form-control" type="text" placeholder="Số điện thoại">
+                            </div>
+                        </div>
+
+                        <div class="card_number_grid_left">
+                            <div class="controls">
+                                <label asp-for="Notes" class="control-label">Mobile number:</label>
+                                <input asp-for="Notes" class="form-control" type="text" placeholder="Ghi chú">
+                            </div>
+                        </div>
+
+                        <div class="clear"> </div>
+                    </div>
+                    <div class="controls">
+                        <label class="control-label">Address type: </label>
+                        <select class="form-control option-w3ls">
+                            <option value="Office">Office</option>
+                            <option value="Home">Home</option>
+                            <option value="Commercial">Commercial</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="submit check_out">Make a Payment</button>
+            </div>
+        </section>
+    </form>
+</div>
