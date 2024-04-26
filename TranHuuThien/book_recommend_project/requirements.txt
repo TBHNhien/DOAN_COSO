@@ -1,7 +1,0 @@
-### dependency
-streamlit
-numpy
-
-scikit-learn
-### local packages -
--e . 
