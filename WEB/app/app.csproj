@@ -37,6 +37,7 @@
   <ItemGroup>
     <Folder Include="Areas\Admin\Data\" />
     <Folder Include="Areas\Admin\Views\Base\" />
+    <Folder Include="wwwroot\PythonScripts\" />
   </ItemGroup>
 
 </Project>

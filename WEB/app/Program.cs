@@ -2,6 +2,7 @@ using app.Dao;
 using app.Data;
 using app.Models.Momo;
 using app.Services;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Model.Dao;
@@ -20,6 +21,32 @@ builder.Services.AddScoped<ProductDao>();
 builder.Services.Configure<MomoOptionModel>(builder.Configuration.GetSection("MomoAPI"));
 
 builder.Services.AddScoped<IMomoService, MomoService>();
+
+// Đăng ký các dịch vụ xác thực
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+	.AddCookie(options =>
+	{
+		options.Cookie.HttpOnly = true;
+		options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // Bắt buộc HTTPS
+		options.Cookie.SameSite = SameSiteMode.None; // Cho phép chia sẻ cookie
+		options.LoginPath = "Identity/Account/Login";
+
+		options.Events.OnRedirectToLogin = context =>
+		{
+			context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+			return Task.CompletedTask;
+		};
+	});
+
+//builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+//	.AddCookie(options =>
+//	{
+//		options.Cookie.HttpOnly = true;
+//		options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // Bắt buộc HTTPS
+//		options.Cookie.SameSite = SameSiteMode.None; // Cho phép chia sẻ cookie
+//		options.LoginPath = "/Account/Login";
+//		options.AccessDeniedPath = "/Account/AccessDenied";
+//	});
 
 
 // Thêm services cho session vào container
@@ -59,6 +86,8 @@ builder.Services.AddRazorPages();
 //);
 
 
+
+
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 //builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
@@ -66,7 +95,32 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddControllersWithViews();
 
+
+
+
+//builder.Services.AddCors(options =>
+//{
+//	options.AddPolicy("AllowSpecificOrigin",
+//		builder => builder.AllowAnyHeader()
+//						  .AllowAnyMethod()
+//						  .AllowCredentials()
+//						  .WithOrigins("http://localhost:5184")); // Điều chỉnh miền theo nhu cầu
+//});
+
+builder.Services.AddCors(options =>
+{
+	options.AddPolicy("AllowSpecificOrigin",
+		builder => builder
+			.WithOrigins("http://localhost:7053") // Thay bằng domain tương ứng
+			.AllowAnyHeader()
+			.AllowAnyMethod()
+			.AllowCredentials());
+});
+
 var app = builder.Build();
+
+app.UseCors("AllowSpecificOrigin");
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -84,17 +138,17 @@ app.UseHttpsRedirection();
 
 // Đặt app.UseSession() trước app.UseStaticFiles() và app.UseRouting()
 app.UseSession();
+
 app.UseStaticFiles();
 
 app.UseRouting();
 
-app.UseAuthorization();
+app.UseAuthentication();  // Thêm middleware xác thực
+
+app.UseAuthorization();   // Đảm bảo có cả middleware ủy quyền
+
 app.MapRazorPages();
 
-//app.MapAreaControllerRoute(
-//name: "AdminArea",
-//areaName: "Admin",
-//pattern: "Admin/{controller=HomeAdmin}/{action=Index}/{id?}");
 
 app.MapControllerRoute(
     name: "default",
@@ -109,10 +163,13 @@ app.MapControllerRoute(
 
 app.UseEndpoints(endpoints =>
 {
-    endpoints.MapControllerRoute(
+	endpoints.MapControllers(); // Map cho tất cả các API
+	endpoints.MapControllerRoute(
         name: "admin",
         pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
 });
+
+
 
 
 

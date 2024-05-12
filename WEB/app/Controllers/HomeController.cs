@@ -1,6 +1,7 @@
 using app.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using System.Security.Claims;
 
 namespace app.Controllers
 {
@@ -8,7 +9,10 @@ namespace app.Controllers
     {
         private readonly ILogger<HomeController> _logger;
 
-        public HomeController(ILogger<HomeController> logger)
+
+        
+
+		public HomeController(ILogger<HomeController> logger)
         {
             _logger = logger;
         }

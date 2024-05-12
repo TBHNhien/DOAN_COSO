@@ -78,9 +78,20 @@ def main(file_path):
         word_freq = analyze_frequency(reviews_data)
         print("Tần suất từ trong đánh giá:", word_freq)
 
+        # Lưu tần suất từ vào file Excel danhgia.xls
+        # word_freq_df = pd.DataFrame.from_dict(word_freq, orient='index', columns=['Count'])
+        # word_freq_df.index.name = 'word'
+        # word_freq_df.to_excel('tansuattu.xlsx')
+
         # Tính điểm đánh giá trung bình
         avg_ratings = calculate_average_ratings(reviews_data)
         print("Điểm đánh giá trung bình:", avg_ratings)
+
+        # Lưu điểm đánh giá trung bình vào file Excel diemdanhgia.xls
+        # avg_ratings_df = pd.DataFrame(avg_ratings)
+        # avg_ratings_df.reset_index(inplace=True)
+        # avg_ratings_df.columns = ['ProductID', 'Ave_Rate']
+        # avg_ratings_df.to_excel('diemdanhgia.xlsx')
 
 if __name__ == "__main__":
     # Đường dẫn tới file Excel

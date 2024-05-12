@@ -76,7 +76,6 @@ namespace app.Controllers
 				Name = product.Name,
 				Price = (decimal)product.Price,
 				Quantity = quantity,
-
                 Image = product.Image
             };
 			var cart = HttpContext.Session.GetObjectFromJson<ShoppingCart>("Cart") ?? new ShoppingCart();

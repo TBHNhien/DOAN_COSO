@@ -29,11 +29,37 @@ namespace app.Controllers
 			return View();
 		}
 
-		public IActionResult Shop()
+		//public IActionResult Shop()
+		//{
+		//	ViewBag.Product = _productDao.ListProduct();
+		//	return View();
+		//}
+
+		//Phân trang
+		public IActionResult Shop(int page = 1)
 		{
-			ViewBag.Product = _productDao.ListProduct();
-			return View();
+
+
+			const int pageSize = 9;
+			var products = _productDao.ListProduct()
+									  .Skip((page - 1) * pageSize)
+									  .Take(pageSize)
+									  .ToList();
+			var totalProductCount = _productDao.ListProduct().Count();
+			var totalPages = (int)Math.Ceiling((double)totalProductCount / pageSize);
+
+			var viewModel = new ProductViewModel
+			{
+				Products = products,
+				CurrentPage = page,
+				TotalPages = totalPages
+			};
+
+			return View(viewModel);
 		}
+
+
+
 
 		//public IActionResult Detail(long id)
 		//{
@@ -85,6 +111,8 @@ namespace app.Controllers
 
 			return View(viewModel);
 		}
+
+
 
 		[Authorize]
 		[HttpPost]
