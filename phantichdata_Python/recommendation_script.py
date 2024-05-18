@@ -29,7 +29,7 @@ user_data = pd.DataFrame(user_reviews)
 
 
 # Đọc dữ liệu đánh giá từ file hoặc cơ sở dữ liệu
-file_path = r'C:\Users\Admin\Desktop\DOAN_CS\DOAN_COSO\phantichdata_Python\data_train2.xls'
+file_path = r'D:\OneDrive\Hutech\subjectNew\DACS\DOAN_COSO\phantichdata_Python\data_train2.xls'
 all_data = pd.read_excel(file_path)
 
 # Tạo ma trận đánh giá
@@ -47,4 +47,4 @@ distances, indices = model_knn.kneighbors(current_user_ratings, n_neighbors=3)
 similar_users = ratings_matrix.index[indices.flatten()[1:]].tolist()
 recommendations = ratings_matrix.loc[similar_users].mean(axis=0).nlargest(6).index
 
-print(f"San pham duoc khuyen nghi la: {recommendations[0]},{recommendations[1]},{recommendations[2]},{recommendations[3]},{recommendations[4]},{recommendations[5]}")
+print(f"{recommendations[0]},{recommendations[1]},{recommendations[2]},{recommendations[3]},{recommendations[4]},{recommendations[5]}")

@@ -8,6 +8,8 @@ using Newtonsoft.Json;
 using System.Diagnostics;
 using System.Security.Claims;
 using System.IO;
+using Microsoft.DotNet.MSIdentity.Shared;
+using System.Net.WebSockets;
 
 
 namespace app.Controllers
@@ -43,7 +45,21 @@ namespace app.Controllers
 			// Gọi tới script Python để tính toán
 			var recommendation = RunPythonScript("recommendation_script.py", jsonInput);
 
-			return Ok(new { Recommendation = recommendation });
+            string[] numbers = recommendation.Split(',');
+            // Convert string array to list of integers
+            List<long> numberList = new List<long>();
+            foreach (string number in numbers)
+            {
+                if (long.TryParse(number, out long result))
+                {
+                    numberList.Add(result);
+                }
+            }
+			var product = _context.Products
+                .Where(p => numberList.Contains(p.Id))
+                .ToList();
+			
+            return Ok(product);
 		}
 
 
@@ -89,50 +105,52 @@ namespace app.Controllers
 
 		private string RunPythonScript(string scriptName, string inputJson)
 		{
-			// Đường dẫn tuyệt đối đến thư mục chứa script
-			//string scriptDirectory = Path.Combine(AppContext.BaseDirectory, "PythonScripts");
+            // Đường dẫn tuyệt đối đến script Python
+            string scriptPath = @"D:\OneDrive\Hutech\subjectNew\DACS\DOAN_COSO\phantichdata_Python\" + scriptName;
 
-			// Đường dẫn tuyệt đối đến script
-			//string scriptPath = Path.Combine(scriptDirectory, scriptName);
+            // Kiểm tra xem tệp có tồn tại không
+            if (!System.IO.File.Exists(scriptPath))
+            {
+                throw new FileNotFoundException($"Script file '{scriptName}' not found in directory.");
+            }
 
-			string scriptPath = @"C:\Users\Admin\Desktop\DOAN_CS\DOAN_COSO\phantichdata_Python\" + scriptName;
+            // Thiết lập thông tin cho quá trình chạy script Python
+            ProcessStartInfo start = new ProcessStartInfo();
+            // Sử dụng Python từ môi trường ảo
+            start.FileName = @"D:\OneDrive\Hutech\subjectNew\DACS\DOAN_COSO\phantichdata_Python\myenv\Scripts\python.exe";
 
+            // Escape chuỗi JSON cho command line
+            inputJson = inputJson.Replace("\"", "\\\"");
 
-			// Kiểm tra xem tệp có tồn tại không
-			if (!System.IO.File.Exists(scriptPath))
-			{
-				throw new FileNotFoundException($"Script file '{scriptName}' not found in directory .");
-			}
+            // Đặt các đối số cho script Python
+            start.Arguments = $"\"{scriptPath}\" \"{inputJson}\"";
+            start.UseShellExecute = false;
+            start.RedirectStandardOutput = true;
+            start.RedirectStandardError = true;
 
-			ProcessStartInfo start = new ProcessStartInfo();
-			start.FileName = "python";
-			//string inputJson1 = JsonConvert.SerializeObject(inputJson);  // yourDataObject là đối tượng chứa dữ liệu bạn muốn gửi
+            // Chạy process và đọc kết quả
+            using (Process process = Process.Start(start))
+            {
+                using (StreamReader reader = process.StandardOutput)
+                {
+                    // Đọc kết quả output từ script Python
+                    string result = reader.ReadToEnd();
 
-			// Escape chuỗi JSON cho command line
-			inputJson = inputJson.Replace("\"", "\\\"");
+                    // Đọc và xử lý lỗi nếu có từ script Python
+                    using (StreamReader errorReader = process.StandardError)
+                    {
+                        string errors = errorReader.ReadToEnd();
+                        if (!string.IsNullOrEmpty(errors))
+                        {
+                            throw new Exception("Python script error: " + errors);
+                        }
+                    }
 
-			start.Arguments = $"\"{scriptPath}\" \"{inputJson}\"";
-			start.UseShellExecute = false;
-			start.RedirectStandardOutput = true;
-			start.RedirectStandardError = true;
-
-			using (Process process = Process.Start(start))
-			{
-				using (StreamReader reader = process.StandardOutput)
-				{
-					string result = reader.ReadToEnd(); // Đọc kết quả output
-					using (StreamReader errorReader = process.StandardError)
-					{
-						string errors = errorReader.ReadToEnd(); // Đọc bất kỳ lỗi nào từ script
-						if (!string.IsNullOrEmpty(errors))
-						{
-							throw new Exception("Python script error: " + errors);
-						}
-					}
-					return result; // Trả về kết quả nếu không có lỗi
-				}
-			}
-		}
+                    // Trả về kết quả nếu không có lỗi
+                    return result;
+                }
+            }
+        }
 
 	}
 
