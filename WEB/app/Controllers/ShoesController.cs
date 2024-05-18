@@ -124,7 +124,7 @@ namespace app.Controllers
 			var review = new ProductReview
 			{
 				ProductId = id,
-				UserId = userId, // Đảm bảo rằng bạn đang thiết lập UserId này
+				UserId = userId, 
 				Rating = rating,
 				ReviewText = reviewText,
 				ReviewDate = DateTime.Now
@@ -138,9 +138,6 @@ namespace app.Controllers
 		}
 
 	}
-		//public IActionResult AddItem(long productId,int quantity)
-		//{
-		//	var session = Session[CartSession];
-		//}
+
 
 }

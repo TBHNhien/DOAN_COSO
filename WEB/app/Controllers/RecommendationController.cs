@@ -29,18 +29,6 @@ namespace app.Controllers
 		[HttpGet]
 		public IActionResult GetUserData()
 		{
-
-
-			//var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-			//if (string.IsNullOrEmpty(userId))
-			//{
-			//	return Unauthorized("No UserId found in session");
-			//}
-
-			//// Xử lý tiếp theo với `userId`
-			//return Ok(new { UserId = userId });
-
 			// Lấy UserId của người dùng đang đăng nhập
 			var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
@@ -52,23 +40,21 @@ namespace app.Controllers
 
 			var jsonInput = JsonConvert.SerializeObject(reviews);
 
-
-
-			//var data = new[]
-			//{
-			//	new { ProductId = 4, Rating = 3 },
-			//	new { ProductId = 8, Rating = 5 }
-			//};
-
-			//string jsonInput = JsonConvert.SerializeObject(data);
-
-
 			// Gọi tới script Python để tính toán
 			var recommendation = RunPythonScript("recommendation_script.py", jsonInput);
 
 			return Ok(new { Recommendation = recommendation });
 		}
 
+
+
+		//var data = new[]
+		//{
+		//	new { ProductId = 4, Rating = 3 },
+		//	new { ProductId = 8, Rating = 5 }
+		//};
+
+		//string jsonInput = JsonConvert.SerializeObject(data);
 
 		//[HttpPost]
 
