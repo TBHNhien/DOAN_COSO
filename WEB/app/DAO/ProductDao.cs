@@ -1,5 +1,7 @@
 ﻿using app.Data;
 using app.Models;
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -166,6 +168,26 @@ namespace Model.Dao
                 // Log the exception or handle it as needed
                 return false;
             }
+        }
+        public string GetReviews(string userId)
+        {
+            var reviews = _context.ProductReviews
+                .Where(r => r.UserId == userId)
+                .GroupBy(r => r.ProductId)
+                .Select(g => new { ProductId = g.Key, Rating = g.Average(r => r.Rating) })
+                .ToList();
+            var jsonInput = JsonConvert.SerializeObject(reviews);
+            
+            return jsonInput;
+        }
+        public List<Product> GetProductsByIds(List<long> ids ) 
+        {
+            var products = _context.Products
+                                   .OrderBy(p => !ids.Contains(p.Id)) // Sắp xếp các sản phẩm có ID trong danh sách lên đầu
+                                   .ThenBy(p => p.Id) // Giữ nguyên thứ tự của các sản phẩm khác
+                                   .ToList();
+
+            return products;
         }
     }
 }
