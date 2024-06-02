@@ -4,7 +4,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Model.Dao;
+using Newtonsoft.Json;
+using System.Diagnostics;
+using System.Drawing.Printing;
 using System.Security.Claims;
 
 namespace app.Controllers
@@ -38,24 +42,66 @@ namespace app.Controllers
 		//Phân trang
 		public IActionResult Shop(int page = 1)
 		{
+			var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-
+			string reviews = _productDao.GetReviews(currentUserId);
 			const int pageSize = 9;
-			var products = _productDao.ListProduct()
-									  .Skip((page - 1) * pageSize)
-									  .Take(pageSize)
-									  .ToList();
-			var totalProductCount = _productDao.ListProduct().Count();
-			var totalPages = (int)Math.Ceiling((double)totalProductCount / pageSize);
+			int totalProductCount;
+			int totalPages;
+			ProductViewModel viewModel;
 
-			var viewModel = new ProductViewModel
+			if (!User.Identity.IsAuthenticated || reviews == "[]")
 			{
-				Products = products,
+
+
+				var products = _productDao.ListProduct()
+										  .Skip((page - 1) * pageSize)
+										  .Take(pageSize)
+										  .ToList();
+				totalProductCount = _productDao.ListProduct().Count();
+				totalPages = (int)Math.Ceiling((double)totalProductCount / pageSize);
+
+				viewModel = new ProductViewModel
+				{
+					Products = products,
+					CurrentPage = page,
+					TotalPages = totalPages
+				};
+
+				return View(viewModel);
+			}
+
+			// Gọi tới script Python để tính toán
+			var recommendation = RunPythonScript("recommendation_script.py", reviews);
+
+			string[] numbers = recommendation.Split(',');
+			// Convert string array to list of integers
+			List<long> numberList = new List<long>();
+			foreach (string number in numbers)
+			{
+				if (long.TryParse(number, out long result))
+				{
+					numberList.Add(result);
+				}
+			}
+			/*var product = _context.Products
+                .Where(p => numberList.Contains(p.Id))
+                .ToList();*/
+			var productsRecommendation = _productDao.GetProductsByIds(numberList)
+													.Skip((page - 1) * pageSize)
+													.Take(pageSize)
+													.ToList(); ;
+			totalProductCount = _productDao.GetProductsByIds(numberList).Count();
+			totalPages = (int)Math.Ceiling((double)totalProductCount / pageSize);
+
+			viewModel = new ProductViewModel
+			{
+				Products = productsRecommendation,
 				CurrentPage = page,
 				TotalPages = totalPages
 			};
-
 			return View(viewModel);
+
 		}
 
 
@@ -69,13 +115,13 @@ namespace app.Controllers
 		//	return View(product);
 		//}
 
-		public async Task<IActionResult> Detail(long id,int page = 1)
+		public async Task<IActionResult> Detail(long id, int page = 1)
 		{
 			const int pageSize = 2; // Đặt số lượng đánh giá trên mỗi trang là 2
 
 			var product = _productDao.ViewDetail(id);
 			var category = _productCategoryDao.ViewDetail(product.CategoryId.Value);
-			var reviewsQuery = _productDao.ListReviewsByProductId(id); 
+			var reviewsQuery = _productDao.ListReviewsByProductId(id);
 
 			// Lấy tổng số lượng đánh giá
 			int reviewCount = reviewsQuery.Count();
@@ -124,7 +170,7 @@ namespace app.Controllers
 			var review = new ProductReview
 			{
 				ProductId = id,
-				UserId = userId, 
+				UserId = userId,
 				Rating = rating,
 				ReviewText = reviewText,
 				ReviewDate = DateTime.Now
@@ -136,8 +182,59 @@ namespace app.Controllers
 			// Chuyển hướng người dùng trở lại trang chi tiết sản phẩm
 			return RedirectToAction("Detail", new { id = id });
 		}
+		private string RunPythonScript(string scriptName, string inputJson)
+		{
+			// Đường dẫn tuyệt đối đến script Python
+			//Sửa về đúng đường dẫn của máy bản thân
+			string scriptPath = @"C:\Users\Admin\Desktop\DOAN_CS\DOAN_COSO\phantichdata_Python\" + scriptName;
+
+			// Kiểm tra xem tệp có tồn tại không
+			if (!System.IO.File.Exists(scriptPath))
+			{
+				throw new FileNotFoundException($"Script file '{scriptName}' not found in directory.");
+			}
+
+			ProcessStartInfo start = new ProcessStartInfo();
+			start.FileName = "python";
+			//string inputJson1 = JsonConvert.SerializeObject(inputJson);  // yourDataObject là đối tượng chứa dữ liệu bạn muốn gửi
+
+			// Escape chuỗi JSON cho command line
+			inputJson = inputJson.Replace("\"", "\\\"");
+
+			// Đặt các đối số cho script Python
+			start.Arguments = $"\"{scriptPath}\" \"{inputJson}\"";
+			start.UseShellExecute = false;
+			start.RedirectStandardOutput = true;
+			start.RedirectStandardError = true;
+
+			// Chạy process và đọc kết quả
+			using (Process process = Process.Start(start))
+			{
+				using (StreamReader reader = process.StandardOutput)
+				{
+					// Đọc kết quả output từ script Python
+					string result = reader.ReadToEnd();
+
+					// Đọc và xử lý lỗi nếu có từ script Python
+					using (StreamReader errorReader = process.StandardError)
+					{
+						string errors = errorReader.ReadToEnd();
+						if (!string.IsNullOrEmpty(errors))
+						{
+							throw new Exception("Python script error: " + errors);
+						}
+					}
+
+					// Trả về kết quả nếu không có lỗi
+					return result;
+				}
+			}
+		}
 
 	}
-
+	//public IActionResult AddItem(long productId,int quantity)
+	//{
+	//	var session = Session[CartSession];
+	//}
 
 }
