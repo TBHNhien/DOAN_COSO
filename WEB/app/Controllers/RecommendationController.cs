@@ -106,7 +106,7 @@ namespace app.Controllers
 		private string RunPythonScript(string scriptName, string inputJson)
 		{
             // Đường dẫn tuyệt đối đến script Python
-            string scriptPath = @"D:\OneDrive\Hutech\subjectNew\DACS\DOAN_COSO\phantichdata_Python\" + scriptName;
+            string scriptPath = @"C:\Users\Admin\Desktop\DOAN_CS\DOAN_COSO\phantichdata_Python\" + scriptName;
 
             // Kiểm tra xem tệp có tồn tại không
             if (!System.IO.File.Exists(scriptPath))
@@ -114,13 +114,12 @@ namespace app.Controllers
                 throw new FileNotFoundException($"Script file '{scriptName}' not found in directory.");
             }
 
-            // Thiết lập thông tin cho quá trình chạy script Python
-            ProcessStartInfo start = new ProcessStartInfo();
-            // Sử dụng Python từ môi trường ảo
-            start.FileName = @"D:\OneDrive\Hutech\subjectNew\DACS\DOAN_COSO\phantichdata_Python\myenv\Scripts\python.exe";
+			ProcessStartInfo start = new ProcessStartInfo();
+			start.FileName = "python";
+			//string inputJson1 = JsonConvert.SerializeObject(inputJson);  // yourDataObject là đối tượng chứa dữ liệu bạn muốn gửi
 
-            // Escape chuỗi JSON cho command line
-            inputJson = inputJson.Replace("\"", "\\\"");
+			// Escape chuỗi JSON cho command line
+			inputJson = inputJson.Replace("\"", "\\\"");
 
             // Đặt các đối số cho script Python
             start.Arguments = $"\"{scriptPath}\" \"{inputJson}\"";
