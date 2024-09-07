@@ -70,10 +70,17 @@
 			</div>
 
 		<div class="col-md-8 single-right-left simpleCart_shelfItem">
-			<h3>Shoe Rock Vision(SRV) Sneakers (Blue)</h3>
+			<h3>@Model.Product.Name</h3>
+			@{
+				var likeIcon = ViewBag.Like == "1" ? "fa fa-heart" : "fa fa-heart-o";
+				var likeText = ViewBag.Like == "1" ? "Đã thích" : "Chưa thích";
+			}
+			<a asp-controller="FavouriteProduct" asp-action="Add" asp-route-id="@Model.Product.Id" style="color:red">
+				<i class="@likeIcon"></i> @likeText
+			</a>
 			<p>
-				<span class="item_price">@Model.Product.Price</span>
-				<del>$1,199</del>
+				<span class="item_price">@Model.Product.Price.Value.ToString("N0") VNĐ</span>
+				
 			</p>
 @* 			<div class="rating1">
 				<ul class="stars">
@@ -91,17 +98,6 @@
 						   required="">
 					<input type="submit" value="Check">
 				</form>
-			</div>
-			<div class="color-quality">
-				<div class="color-quality-right">
-					<h5>Quality :</h5>
-					<select id="country1" onchange="change_country(this.value)" class="frm-field required sect">
-						<option value="null">1 Qty</option>
-						<option value="null">2 Qty</option>
-						<option value="null">3 Qty</option>
-						<option value="null">10 Qty</option>
-					</select>
-				</div>
 			</div>
 			<div class="occasional">
 				<h5>Types :</h5>

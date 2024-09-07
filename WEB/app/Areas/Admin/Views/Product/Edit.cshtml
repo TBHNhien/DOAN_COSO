@@ -63,9 +63,35 @@
                             </div>
 
                             <div class="form-group">
-                                @Html.LabelFor(model => model.Image, new { @class = "control-label col-md-2" })
-                                @Html.TextBoxFor(model => model.Image, new { @class = "form-control", @type = "text" })
-                                @Html.ValidationMessageFor(model => model.Image, "", new { @class = "text-danger" })
+                                <label for="ImageUrl">Product Image</label>
+                                <input type="file" id="imageInput" name="ImageUrl" class="form-control" />
+
+                                <img id="productImage" src="@Model.Image" alt="Product Image" style="max-width: 200px;" />
+                            </div>
+                            <div class="form-group">
+                                <label for="OtherImageUrls">Other Images</label>
+                                <input id="imagesInput" type="file" name="OtherImageUrls" multiple class="form-control" />
+                                <div id="productImages" class="row">
+                                    @using System.Xml.Linq
+                                    @{
+                                        // Phân tích cú pháp chuỗi XML từ thuộc tính MoreImages
+                                        var imagesXml = XElement.Parse(Model.MoreImages);
+
+                                        // Lấy tất cả các phần tử <image>
+                                        var imagePaths = imagesXml.Elements("image").Select(element => element.Value);
+                                    }
+
+
+                                    @foreach (var imagePath in imagePaths)
+                                    {
+                                    // Thay thế '~/' bằng đường dẫn gốc của ứng dụng web của bạn nếu cần
+
+                                        <div class="col-md-4">
+                                            <img src="@imagePath.Replace("~/", "/")" alt="Image" style="height:300px; width:200px" />
+                                        </div>
+                                        
+                                    }
+                                </div>
                             </div>
 
                             <div class="form-group">
@@ -84,3 +110,46 @@
 <div>
     @Html.ActionLink("Trở về danh sách", "Index")
 </div>
+<script>
+    // Thêm sự kiện 'change' cho trường nhập file
+    document.getElementById('imageInput').addEventListener('change', function () {
+        // Lấy đối tượng hình ảnh
+        var img = document.getElementById('productImage');
+        // Lấy file đã chọn
+        var file = this.files[0];
+
+        // Kiểm tra xem có file được chọn không
+        if (file) {
+            // Tạo đường dẫn tạm thời cho ảnh
+            var imageURL = URL.createObjectURL(file);
+            // Cập nhật thuộc tính 'src' của thẻ img
+            img.src = imageURL;
+        } else {
+            // Nếu không có file được chọn, sử dụng ảnh cũ
+            img.src = "@Model.Image";
+        }
+    });
+
+
+    document.getElementById('imagesInput').onchange = function (e) {
+        var previewImagesDiv = document.getElementById('productImages');
+        previewImagesDiv.innerHTML = ''; // Xóa bất kỳ ảnh nào đã hiển thị trước đó
+
+        var files = e.target.files;
+        for (var i = 0; i < files.length; i++) {
+            var reader = new FileReader();
+            reader.onload = function (event) {
+                var img = document.createElement('img');
+                img.src = event.target.result;
+                img.style.width = '200px'; // Thiết lập kích thước ảnh
+                img.style.height = '300px';
+
+                var div = document.createElement('div');
+                div.setAttribute('class', 'col-md-4');
+                div.appendChild(img);
+                previewImagesDiv.appendChild(div);
+            }
+            reader.readAsDataURL(files[i]);
+        }
+    }
+</script>
