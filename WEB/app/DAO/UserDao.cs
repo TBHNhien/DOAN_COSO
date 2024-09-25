@@ -118,5 +118,10 @@ namespace app.Dao
 
         }
 
+        public User GetByEmail(string email)
+        {
+            return _context.Users.FirstOrDefault(u => u.UserName == email); // Kiểm tra email đã tồn tại
+        }
+
     }
 }

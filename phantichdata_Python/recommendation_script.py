@@ -29,7 +29,7 @@ user_data = pd.DataFrame(user_reviews)
 
 
 # Đọc dữ liệu đánh giá từ file hoặc cơ sở dữ liệu
-file_path = r'C:\Users\Admin\Desktop\DOAN_CS\DOAN_COSO\phantichdata_Python\data_train2.xls'
+file_path = r'E:\DOAN-C#\DOANCS_NEW\yeuthich\DOAN_COSO\phantichdata_Python\data_train2.xls'
 all_data = pd.read_excel(file_path)
 
 # Tạo ma trận đánh giá
