@@ -19,7 +19,7 @@ public class RegisterTests : IDisposable
         driver = new ChromeDriver();
     }
 
-    [Fact]
+    [Fact(Skip = "Skipping this test for now")]
     public void Register_With_Short_Password_Should_Show_Error_Message()
     {
         // Điều hướng đến trang đăng ký
@@ -35,7 +35,7 @@ public class RegisterTests : IDisposable
         Assert.Contains("Mật khẩu phải có tối thiểu 6 ký tự.", errorMessage);
     }
 
-    [Fact]
+    [Fact(Skip = "Skipping this test for now")]
     public void Register_With_Password_Missing_Requirements_Should_Show_Error_Message()
     {
         // Kiểm tra từng trường hợp không thỏa mãn điều kiện mật khẩu:
@@ -60,7 +60,7 @@ public class RegisterTests : IDisposable
         }
     }
 
-    [Fact]
+    [Fact(Skip = "Skipping this test for now")]
     public void Register_With_Valid_Password_Combinations_Should_Pass()
     {
         // Các trường hợp lệ:

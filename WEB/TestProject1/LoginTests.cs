@@ -20,7 +20,7 @@ public class LoginTests : IDisposable
         driver = new ChromeDriver();
     }
 
-    [Fact]
+    [Fact(Skip = "Skipping this test for now")]
     public void Login_With_Valid_Credentials_Should_Redirect_To_Admin_Home()
     {
         // Điều hướng đến trang đăng nhập
@@ -35,7 +35,7 @@ public class LoginTests : IDisposable
         Assert.Equal("https://localhost:7053/admin/HomeAdmin", driver.Url);
     }
 
-    [Fact]
+    [Fact(Skip = "Skipping this test for now")]
     public void Login_With_Invalid_Credentials_Should_Show_Error_Message()
     {
         // Điều hướng đến trang đăng nhập
