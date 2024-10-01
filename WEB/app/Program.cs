@@ -1,5 +1,4 @@
 using app.Dao;
-using app.DAO;
 using app.Data;
 using app.Models.Momo;
 using app.Services;
@@ -17,8 +16,7 @@ builder.Services.AddScoped<ContentDao>();
 builder.Services.AddScoped<CategoryDao>();
 builder.Services.AddScoped<ProductCategoryDao>();
 builder.Services.AddScoped<ProductDao>();
-builder.Services.AddScoped<BillDao>();
-builder.Services.AddScoped<FavouriteProductDao>();
+
 
 builder.Services.Configure<MomoOptionModel>(builder.Configuration.GetSection("MomoAPI"));
 

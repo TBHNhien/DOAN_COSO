@@ -17,8 +17,8 @@
 		<div class="side-bar col-md-3">
 			<div class="search-hotel">
 				<h3 class="agileits-sear-head">Search Here..</h3>
-				<form action="/Shoes/Search" method="get">
-					<input type="search" placeholder="Product name..." name="query" required="">
+				<form action="#" method="post">
+					<input type="search" placeholder="Product name..." name="search" required="">
 					<input type="submit" value=" ">
 				</form>
 			</div>
@@ -35,20 +35,27 @@
 			</div>
 			<!-- //price range -->
 			<!--preference -->
-
 			<div class="left-side">
-				<h3 class="agileits-sear-head">Product Categories</h3>
+				<h3 class="agileits-sear-head">Occasion</h3>
 				<ul>
-					@foreach (var category in Model.ProductCategories)
-					{
-						<li>
-							<input type="checkbox" class="checked" id="category_@category.Id" name="categories" value="@category.Id" @(Model.SearchQuery == category.Name ? "checked" : "")>
-							<label for="category_@category.Id" class="span">@category.Name</label>
-						</li>
-					}
+					<li>
+						<input type="checkbox" class="checked">
+						<span class="span">Casuals</span>
+					</li>
+					<li>
+						<input type="checkbox" class="checked">
+						<span class="span">Party</span>
+					</li>
+					<li>
+						<input type="checkbox" class="checked">
+						<span class="span">Wedding</span>
+					</li>
+					<li>
+						<input type="checkbox" class="checked">
+						<span class="span">Ethnic</span>
+					</li>
 				</ul>
 			</div>
-
 			<!-- // preference -->
 			<!-- discounts -->
 			<div class="left-side">
@@ -235,7 +242,7 @@
 											<div class="grid_meta">
 												<div class="product_price">
 													<div class="grid-price ">
-														<span class="money ">@(item.Price.HasValue ? item.Price.Value.ToString("N0") : "Liên hệ") VNĐ</span>
+														<span class="money ">@(item.Price.HasValue ? item.Price.Value.ToString("N0") : "Liên hệ")</span>
 													</div>
 												</div>
 												<ul class="stars">
@@ -282,10 +289,9 @@
 						@for (int i = 1; i <= Model.TotalPages; i++)
 						{
 							var isActive = i == Model.CurrentPage ? "active-page" : "";
-							<a class="@isActive" href="@Url.Action("Shop", new { page = i, categoryId = ViewBag.CategoryId })">@i</a>
+							<a class="@isActive" href="@Url.Action("Shop", new { page = i })">@i</a>
 						}
 					</div>
-
 					<style>
 						.active-page {
 							font-weight: bold;
@@ -432,32 +438,4 @@
 
 	<div class="clearfix"></div>
 </div>
-
-<script>
-	document.addEventListener('DOMContentLoaded', function () {
-		var checkboxes = document.querySelectorAll('input[type="checkbox"][name="categories"]');
-		checkboxes.forEach(function (checkbox) {
-			checkbox.addEventListener('change', function () {
-				checkboxes.forEach(function (cb) {
-					if (cb !== checkbox) {
-						cb.checked = false;
-					}
-				});
-			});
-		});
-	});
-</script>
-
-<script>
-	document.addEventListener('DOMContentLoaded', function () {
-		var checkboxes = document.querySelectorAll('input[type="checkbox"][name="categories"]');
-		checkboxes.forEach(function (checkbox) {
-			checkbox.addEventListener('change', function () {
-				var selectedCategory = this.value;
-				window.location.href = `@Url.Action("Shop", "Shoes")?categoryId=${selectedCategory}`;
-			});
-		});
-	});
-</script>
-
 <!-- //newsletter-->

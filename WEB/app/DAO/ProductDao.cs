@@ -37,8 +37,6 @@ namespace Model.Dao
             return model;
         }
 
-
-
 		/// <summary>
 		/// List new product
 		/// </summary>
@@ -127,7 +125,7 @@ namespace Model.Dao
                     product.Quantity = entity.Quantity;
                     product.CategoryId = entity.CategoryId; // Ensure you have the correct foreign key property
                     product.Warranty = entity.Warranty;
-                    product.MoreImages = entity.MoreImages;
+
 
                     _context.SaveChanges();
                 }
@@ -191,12 +189,5 @@ namespace Model.Dao
 
             return products;
         }
-
-		public List<Product> SearchProductsByName(string name)
-		{
-			return _context.Products
-						   .Where(p => p.Name.Contains(name))
-						   .ToList();
-		}
-	}
+    }
 }

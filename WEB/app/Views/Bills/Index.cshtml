@@ -28,11 +28,11 @@
 							<tr class="rem1">
 								<td class="invert">1</td>
 								<td class="invert-image">
-									<a href="single.html"><img src="@item.Image" alt="" /></a>
+									<a href="single.html"><img src="@item.Image" alt="" class="img-responsive" /></a>
 								</td>
 								<td class="invert">@item.Name</td>
 
-								<td class="invert" width="15%">
+								<td class="invert">
 									<div class="quantity">
 										<div class="quantity-select">
 											<div class="entry value-minus " data-itemid="@item.ProductId" data-quantity="@item.Quantity">&nbsp;</div>
@@ -47,7 +47,7 @@
 								</td>
 
 								<td class="invert">
-									<span class="total-price">@(item.Price * item.Quantity)</span>
+									<span class="total-price">@(item.Price*item.Quantity)</span>
 								</td>
 
 
@@ -58,6 +58,7 @@
 								</td>
 							</tr>
 						}
+
 					</tbody>
 				</table>
 			</div>
@@ -83,7 +84,7 @@
 
 				<div class="clearfix"> </div>
 			<div class="checkout-right-basket">
-				<a asp-action="Checkout" id="thanhtoan" >Thanh toán</a>
+				<a asp-action="Checkout" >Thanh toán</a>
 			</div>
 
 				<div class="clearfix"></div>

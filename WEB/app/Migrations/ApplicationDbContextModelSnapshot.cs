@@ -333,33 +333,6 @@ namespace app.Migrations
                     b.ToTable("Contents");
                 });
 
-            modelBuilder.Entity("app.Models.FavouriteProduct", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<long>("ProductId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProductId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("FavouriteProducts");
-                });
-
             modelBuilder.Entity("app.Models.Menu", b =>
                 {
                     b.Property<int>("Id")
@@ -536,8 +509,6 @@ namespace app.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CategoryId");
-
                     b.ToTable("Products");
                 });
 
@@ -697,7 +668,6 @@ namespace app.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Password")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Phone")
@@ -707,7 +677,6 @@ namespace app.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("UserName")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -766,25 +735,6 @@ namespace app.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("app.Models.FavouriteProduct", b =>
-                {
-                    b.HasOne("app.Models.Product", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Product");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("app.Models.Order", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "User")
@@ -815,15 +765,6 @@ namespace app.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("app.Models.Product", b =>
-                {
-                    b.HasOne("app.Models.ProductCategory", "ProductCategory")
-                        .WithMany("Products")
-                        .HasForeignKey("CategoryId");
-
-                    b.Navigation("ProductCategory");
-                });
-
             modelBuilder.Entity("app.Models.ProductReview", b =>
                 {
                     b.HasOne("app.Models.Product", "Product")
@@ -846,11 +787,6 @@ namespace app.Migrations
             modelBuilder.Entity("app.Models.Order", b =>
                 {
                     b.Navigation("OrderDetails");
-                });
-
-            modelBuilder.Entity("app.Models.ProductCategory", b =>
-                {
-                    b.Navigation("Products");
                 });
 #pragma warning restore 612, 618
         }

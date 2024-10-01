@@ -19,6 +19,4 @@ namespace app.Areas.Admin.Controllers
             return View();
         }
     }
-//write a function to contact usser
-
 }

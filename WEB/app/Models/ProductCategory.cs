@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace app.Models
 {
@@ -33,9 +32,5 @@ namespace app.Models
         public bool? Status { get; set; }
 
         public bool? ShowOnHome { get; set; }
-
-		[ValidateNever]
-		// Thêm thuộc tính điều hướng
-		public virtual ICollection<Product> Products { get; set; }
-	}
+    }
 }

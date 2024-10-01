@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace app.Models
 {
@@ -50,11 +48,5 @@ namespace app.Models
         public DateTime? TopHot { get; set; }
 
         public int? ViewCount { get; set; }
-
-        //// Thuộc tính điều hướng
-
-        [ValidateNever]
-		[ForeignKey("CategoryId")]
-		public virtual ProductCategory ProductCategory { get; set; }
-	}
+    }
 }
