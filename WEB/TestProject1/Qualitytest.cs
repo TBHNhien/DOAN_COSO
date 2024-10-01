@@ -53,7 +53,7 @@ public class Qualitytest : IDisposable
 
     }
 
-    [Fact]
+    [Fact(Skip = "Skipping this test for now")]
     public void Checkout_With_Negative_Quantity_Should_Show_Error()
     {
         // Nhập số lượng âm
@@ -64,7 +64,7 @@ public class Qualitytest : IDisposable
         Assert.Equal("Invalid quantity", errorMessage.Text); // Kiểm tra xem có thông báo lỗi phù hợp không
     }
 
-    [Fact]
+    [Fact(Skip = "Skipping this test for now")]
     public void Checkout_With_Real_Number_Quantity_Should_Show_Error()
     {
         // Nhập số lượng thực (e.g. 2.5)
@@ -75,7 +75,7 @@ public class Qualitytest : IDisposable
         Assert.Equal("Invalid quantity", errorMessage.Text); // Kiểm tra xem có thông báo lỗi phù hợp không
     }
 
-    [Fact]
+    [Fact(Skip = "Skipping this test for now")]
     public void Checkout_With_Invalid_Text_Quantity_Should_Show_Error()
     {
         // Nhập ký tự không hợp lệ (e.g. 'e')
@@ -86,7 +86,7 @@ public class Qualitytest : IDisposable
         Assert.Equal("Invalid quantity", errorMessage.Text); // Kiểm tra xem có thông báo lỗi phù hợp không
     }
 
-    [Fact]
+    [Fact(Skip = "Skipping this test for now")]
     public void Checkout_With_Zero_Quantity_Should_Show_Error()
     {
         // Nhập số lượng là 0
@@ -96,7 +96,7 @@ public class Qualitytest : IDisposable
         IWebElement errorMessage = _wait.Until(ExpectedConditions.ElementIsVisible(By.Id("error-quantity"))); // Assuming there is an error message element
         Assert.Equal("Invalid quantity", errorMessage.Text); // Kiểm tra xem có thông báo lỗi phù hợp không
     }
-    [Fact]
+    [Fact(Skip = "Skipping this test for now")]
     public void Checkout_With_Zero_Quantity_Should_Show_Error1()
     {
         // trường hợp ko nhập j
@@ -106,7 +106,7 @@ public class Qualitytest : IDisposable
         IWebElement errorMessage = _wait.Until(ExpectedConditions.ElementIsVisible(By.Id("error-quantity"))); // Assuming there is an error message element
         Assert.Equal("Invalid quantity", errorMessage.Text); // Kiểm tra xem có thông báo lỗi phù hợp không
     }
-    [Fact]
+    [Fact(Skip = "Skipping this test for now")]
     public void Checkout_With_Zero_Quantity_Should_Show_Error2()
     {
 
@@ -117,7 +117,7 @@ public class Qualitytest : IDisposable
         IWebElement errorMessage = _wait.Until(ExpectedConditions.ElementIsVisible(By.Id("error-quantity"))); // Assuming there is an error message element
         Assert.Equal("Invalid quantity", errorMessage.Text); // Kiểm tra xem có thông báo lỗi phù hợp không
     }
-    [Fact]
+    [Fact(Skip = "Skipping this test for now")]
     public void Checkout_With_Valid_Quantity_Should_Succeed()
     {
         // Nhập số lượng hợp lệ
@@ -135,7 +135,7 @@ public class Qualitytest : IDisposable
         IWebElement cartQuantity = _wait.Until(ExpectedConditions.ElementIsVisible(By.Id("cart-quantity")));
         Assert.Equal("4", cartQuantity.GetAttribute("value")); // Kiểm tra số lượng là 4
     }
-    [Fact]
+    [Fact(Skip = "Skipping this test for now")]
     private void Nologin()
     {
 

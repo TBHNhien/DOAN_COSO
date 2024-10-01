@@ -106,7 +106,7 @@ namespace app.Controllers
 		private string RunPythonScript(string scriptName, string inputJson)
 		{
             // Đường dẫn tuyệt đối đến script Python
-            string scriptPath = @"D:\kiemthuproject\DOAN_COSO\phantichdata_Python\" + scriptName;
+            string scriptPath = @"E:\DOAN-C#\DOANCS_NEW\yeuthich\DOAN_COSO\phantichdata_Python\" + scriptName;
 
             // Kiểm tra xem tệp có tồn tại không
             if (!System.IO.File.Exists(scriptPath))
