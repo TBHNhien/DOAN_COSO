@@ -96,7 +96,7 @@
 				<form action="#" method="post">
 					<input type="text" value="Enter pincode" onfocus="this.value = '';" onblur="if (this.value == '') {this.value = 'Enter pincode';}"
 						   required="">
-					<input type="submit" value="Check">
+					 <input type="submit" value="Check"> 
 				</form>
 			</div>
 			<div class="occasional">
@@ -123,8 +123,8 @@
 						<input type="hidden" name="productPrice" value="@Model.Product.Price" />
 						<input type="hidden" name="productImage" value="@Model.Product.Image" />
 						<input type="number" name="quantity" id="hiddenQuantity" value="1" min="1" />
-						<input type="submit" name="submit" value="Add to cart" class="button add" />
-					</form>
+						<input type="submit" name="submit" id="addtocard" value="Add to cart" class="button add" />
+					</form>	
 
 
 
@@ -384,7 +384,7 @@
 							<img src="~/images/s5.jpg" alt="">
 							<div class="men-cart-pro">
 								<div class="inner-men-cart-pro">
-									<a href="single.html" class="link-product-add-cart">Quick View</a>
+									<a href="single.html" class="link-product-add-cart" id="Quickview">Quick View</a>
 								</div>
 							</div>
 							<span class="product-new-top">New</span>

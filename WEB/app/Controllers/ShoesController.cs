@@ -252,7 +252,7 @@ namespace app.Controllers
 		{
             // Đường dẫn tuyệt đối đến script Python
             //Sửa về đúng đường dẫn của máy bản thân
-            string scriptPath = @"E:\DOAN-C#\DOANCS_NEW\yeuthich\DOAN_COSO\phantichdata_Python\" + scriptName;
+            string scriptPath = @"D:\kiemthuproject\DOAN_COSO\phantichdata_Python\" + scriptName;
 
             // Kiểm tra xem tệp có tồn tại không
             if (!System.IO.File.Exists(scriptPath))
