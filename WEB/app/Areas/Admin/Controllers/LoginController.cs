@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Mvc;
 using Model.Dao;
 using Newtonsoft.Json;
 using app.Dao;
+using app.Models;
+using static app.Models.User;
 
 namespace app.Controllers
 {
@@ -73,5 +75,6 @@ namespace app.Controllers
             }
             return View("Index");
         }
+
     }
 }

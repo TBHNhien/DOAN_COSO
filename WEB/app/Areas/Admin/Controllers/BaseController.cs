@@ -23,6 +23,9 @@ namespace app.Areas.Admin.Controllers
         //    base.OnActionExecuting(filterContext);
         //}
 
+
+      
+
         [Area("Admin")]
         public override void OnActionExecuting(ActionExecutingContext context)
         {
@@ -36,7 +39,7 @@ namespace app.Areas.Admin.Controllers
 
             }
         }
-
+       
         protected void SetAlert(string message,string type)
         {
             TempData["AlertMessage"] = message;
@@ -53,6 +56,7 @@ namespace app.Areas.Admin.Controllers
             {
                 TempData["AlertType"] = "alert-danger";
             }
+
         }
     }
 }

@@ -36,6 +36,8 @@ namespace app.Data
 
 		public DbSet<ProductReview> ProductReviews { get; set; }
 
+        public DbSet<FavouriteProduct> FavouriteProducts { get; set; }
+
 		//protected override void OnModelCreating(ModelBuilder modelBuilder)
 		//{
 		//    base.OnModelCreating(modelBuilder); // Don't forget to call this!
@@ -46,6 +48,32 @@ namespace app.Data
 
 		//    // Other Fluent API configurations
 		//}
+
+		protected override void OnModelCreating(ModelBuilder modelBuilder)
+		{
+			// Cấu hình kiểu cột cho các thuộc tính decimal
+			modelBuilder.Entity<Order>()
+				.Property(o => o.TotalPrice)
+				.HasColumnType("decimal(18,2)");
+
+			modelBuilder.Entity<OrderDetail>()
+				.Property(od => od.Price)
+				.HasColumnType("decimal(18,2)");
+
+			modelBuilder.Entity<Product>()
+				.Property(p => p.Price)
+				.HasColumnType("decimal(18,2)");
+
+			modelBuilder.Entity<Product>()
+				.Property(p => p.PromotionPrice)
+				.HasColumnType("decimal(18,2)");
+
+			modelBuilder.Entity<ProductReview>()
+				.Property(pr => pr.Rating)
+				.HasColumnType("decimal(18,2)");
+
+			base.OnModelCreating(modelBuilder);
+		}
 
 	}
 }

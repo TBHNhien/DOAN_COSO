@@ -1,6 +1,10 @@
 ﻿using Model.Dao;
 using Microsoft.AspNetCore.Mvc;
-using app.Models; // Sửa lại tên namespace cho phù hợp với Product model của bạn
+using app.Models;
+using Microsoft.IdentityModel.Tokens; // Sửa lại tên namespace cho phù hợp với Product model của bạn
+using X.PagedList;
+using X.PagedList.Mvc.Core;
+
 
 namespace app.Areas.Admin.Controllers
 {
@@ -21,6 +25,7 @@ namespace app.Areas.Admin.Controllers
             return View(model);
         }
 
+
         public IActionResult Create()
         {
             return View();
@@ -28,10 +33,28 @@ namespace app.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(Product product)
+        public IActionResult Create(Product product, IFormFile ImageUrl, List<IFormFile> OtherImageUrls)
         {
             if (ModelState.IsValid)
             {
+                
+                product.MetaTitle = product.Name.Replace(" ", "-").ToLower();
+                product.Description = "Sản phẩm đẹp";
+                product.CategoryId = 1;
+
+                if (ImageUrl != null)
+                    product.Image = SaveImage(ImageUrl);
+                if (!OtherImageUrls.IsNullOrEmpty())
+                {
+                    string temp = "<images>";
+                    foreach(var otherImageUrl in OtherImageUrls)
+                    {
+                        temp = temp + ("<image>/images/" + otherImageUrl.FileName + "</image>");
+                        SaveImage(otherImageUrl);
+                    }
+                    temp += "</images>";
+                    product.MoreImages = temp;
+                }
                 long id = _productDao.Insert(product);
                 if (id > 0)
                 {
@@ -45,6 +68,17 @@ namespace app.Areas.Admin.Controllers
             }
             return View(product);
         }
+        //Hàm saveImage
+        private string SaveImage(IFormFile image)
+        {
+            var savePath = Path.Combine("wwwroot/images", image.FileName); // Thay đổi đường dẫn theo cấu hình của bạn
+            using (var fileStream = new FileStream(savePath, FileMode.Create))
+            {
+                image.CopyTo(fileStream);
+            }
+            return "/images/" + image.FileName; // Trả về đường dẫn tương đối 
+        }
+
         [HttpGet]
         public IActionResult Edit(long id)
         {
@@ -58,10 +92,45 @@ namespace app.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(Product product)
+        public IActionResult Edit(Product product, IFormFile ImageUrl, List<IFormFile> OtherImageUrls)
         {
+            ModelState.Remove("ImageUrl");
+            ModelState.Remove("OtherImageUrls");
             if (ModelState.IsValid)
             {
+                var existingProduct = _productDao.ViewDetail(product.Id);
+                // Giữ nguyên thông tin hình ảnh nếu không có hình mới được tải lên
+                if (ImageUrl == null)
+                {
+                    product.Image = existingProduct.Image;
+                }
+                else
+                {
+                    // Lưu hình ảnh mới 
+                    product.Image = SaveImage(ImageUrl);
+                }
+                //Lưu các ảnh mới
+                if (!OtherImageUrls.IsNullOrEmpty())
+                {
+                    
+                    string temp = "<images>";
+                    foreach (var otherImageUrl in OtherImageUrls)
+                    {
+                        temp = temp + ("<image>/images/" + otherImageUrl.FileName + "</image>");
+                        SaveImage(otherImageUrl);
+                    }
+                    temp += "</images>";
+                    product.MoreImages = temp;
+                }
+                else
+                {
+                    // Giữ nguyên các thông tin ảnh nếu không có các ảnh mới được tải lên
+                    
+                    product.MoreImages = existingProduct.MoreImages;
+                }
+                product.MetaTitle = existingProduct.MetaTitle;
+                product.CategoryId = existingProduct.CategoryId;
+                product.Description = "Giày được thiết kế dáng buộc dây năng động,mặt giày vải dệt dày dặn ,viền ép nhiệt phong cách hiện đại,màu sắc khỏe khoắn. Đặc biệt sản phẩm sử dụng chất liệu cao cấp có độ bền tối ưu giúp bạn thoải mái trong mọi hoàn cảnh. Giày thoáng khí cả mặt trong lẫn mặt ngoài khiến người mang luôn cảm thấy dễ chịu dù hoạt động trong thời gian dài.";
                 bool result = _productDao.Update(product);
                 if (result)
                 {

@@ -71,7 +71,11 @@
                                 <td>@item.Code</td>
                                 <td>@item.Price</td>
                                 <td>@item.Quantity</td>
-                                <td>@item.Status ? "Kích hoạt" : "Khóa"</td>
+                                <td>
+                                    @(item.Status.HasValue
+                                        ? (item.Status.Value ? "Kích hoạt" : "Khóa")
+                                        : "Chưa đặt trạng thái")
+                                </td>
                                 <td>
                                     <img src="@item.Image" alt="Ảnh lỗi" style="max-width: 100px; max-height: 100px;" />
                                 </td>
@@ -83,7 +87,19 @@
                         }
                     </tbody>
                 </table>
-                @Html.PagedListPager(Model, page => Url.Action("Index", new { page, searchString = ViewBag.SearchString }))
+                @* @Html.PagedListPager(Model, page => Url.Action("Index", new { page, searchString = ViewBag.SearchString })) *@
+@*                 @Html.PagedListPager(Model, page => Url.Action("Index", "Product", new { area = "Admin", page})) *@
+                <div>
+                    @for (int i = 1; i <= Model.PageCount; i++)
+                    {
+                        var isActive = i == Model.PageNumber ? "active-page" : "";
+                        <a class="@isActive" href="https://localhost:7053/Admin/Product/Index?page=@i&searchString=@ViewBag.SearchString">@i</a>
+                    }
+                </div>
+
+
+
+
             </div>
         </div>
     </div>

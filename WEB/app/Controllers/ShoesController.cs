@@ -1,4 +1,5 @@
-﻿using app.Models;
+﻿using app.DAO;
+using app.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -18,13 +19,15 @@ namespace app.Controllers
 		private const string CartSession = "CartSession";
 		private readonly ProductDao _productDao;
 		private readonly ProductCategoryDao _productCategoryDao;
+		private readonly FavouriteProductDao _favouriteProductDao;
 		private readonly UserManager<IdentityUser> _userManager;
 
-		public ShoesController(ProductDao productDao, ProductCategoryDao productCategoryDao, UserManager<IdentityUser> userManager)
+		public ShoesController(ProductDao productDao, ProductCategoryDao productCategoryDao, UserManager<IdentityUser> userManager, FavouriteProductDao favouriteProductDao)
 		{
 			_productDao = productDao;
 			_productCategoryDao = productCategoryDao;
 			_userManager = userManager;
+			_favouriteProductDao = favouriteProductDao;
 		}
 
 		public IActionResult Index()
@@ -40,34 +43,50 @@ namespace app.Controllers
 		//}
 
 		//Phân trang
-		public IActionResult Shop(int page = 1)
+
+
+
+
+
+		public IActionResult Shop(int page = 1, int? categoryId = null)
 		{
 			var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
 			string reviews = _productDao.GetReviews(currentUserId);
 			const int pageSize = 9;
-			int totalProductCount;
+			int totalProductCount = 0; // Khởi tạo với giá trị mặc định
 			int totalPages;
 			ProductViewModel viewModel;
 
+			var productCategories = _productCategoryDao.ListAll().ToList(); // Lấy danh sách danh mục sản phẩm
+
+			List<Product> products;
+
+			if (categoryId.HasValue)
+			{
+				products = _productDao.ListByCategoryId(categoryId.Value, ref totalProductCount, page, pageSize);
+			}
+			else
+			{
+				products = _productDao.ListProduct().Skip((page - 1) * pageSize).Take(pageSize).ToList();
+				totalProductCount = _productDao.ListProduct().Count();
+			}
+
+			totalPages = (int)Math.Ceiling((double)totalProductCount / pageSize);
+
+			viewModel = new ProductViewModel
+			{
+				Products = products,
+				CurrentPage = page,
+				TotalPages = totalPages,
+				ProductCategories = productCategories, // Gán danh sách danh mục sản phẩm
+				SearchQuery = categoryId.HasValue ? productCategories.FirstOrDefault(c => c.Id == categoryId.Value)?.Name : null
+			};
+
+			ViewBag.CategoryId = categoryId;
+
 			if (!User.Identity.IsAuthenticated || reviews == "[]")
 			{
-
-
-				var products = _productDao.ListProduct()
-										  .Skip((page - 1) * pageSize)
-										  .Take(pageSize)
-										  .ToList();
-				totalProductCount = _productDao.ListProduct().Count();
-				totalPages = (int)Math.Ceiling((double)totalProductCount / pageSize);
-
-				viewModel = new ProductViewModel
-				{
-					Products = products,
-					CurrentPage = page,
-					TotalPages = totalPages
-				};
-
 				return View(viewModel);
 			}
 
@@ -84,13 +103,10 @@ namespace app.Controllers
 					numberList.Add(result);
 				}
 			}
-			/*var product = _context.Products
-                .Where(p => numberList.Contains(p.Id))
-                .ToList();*/
 			var productsRecommendation = _productDao.GetProductsByIds(numberList)
 													.Skip((page - 1) * pageSize)
 													.Take(pageSize)
-													.ToList(); ;
+													.ToList();
 			totalProductCount = _productDao.GetProductsByIds(numberList).Count();
 			totalPages = (int)Math.Ceiling((double)totalProductCount / pageSize);
 
@@ -98,13 +114,55 @@ namespace app.Controllers
 			{
 				Products = productsRecommendation,
 				CurrentPage = page,
-				TotalPages = totalPages
+				TotalPages = totalPages,
+				ProductCategories = productCategories, // Gán danh sách danh mục sản phẩm
+				SearchQuery = categoryId.HasValue ? productCategories.FirstOrDefault(c => c.Id == categoryId.Value)?.Name : null
 			};
-			return View(viewModel);
 
+			ViewBag.CategoryId = categoryId;
+
+			return View(viewModel);
 		}
 
 
+
+
+
+
+
+		public IActionResult Search(string query, int page = 1)
+		{
+			const int pageSize = 9;
+			int totalProductCount;
+			int totalPages;
+			ProductViewModel viewModel;
+
+			var productCategories = _productCategoryDao.ListAll().ToList(); // Lấy danh sách danh mục sản phẩm
+
+			if (string.IsNullOrEmpty(query))
+			{
+				// Nếu không có query, hiển thị tất cả sản phẩm như phương thức Shop
+				return RedirectToAction("Shop", new { page });
+			}
+
+			var products = _productDao.SearchProductsByName(query)
+									  .Skip((page - 1) * pageSize)
+									  .Take(pageSize)
+									  .ToList();
+			totalProductCount = _productDao.SearchProductsByName(query).Count();
+			totalPages = (int)Math.Ceiling((double)totalProductCount / pageSize);
+
+			viewModel = new ProductViewModel
+			{
+				Products = products,
+				CurrentPage = page,
+				TotalPages = totalPages,
+				ProductCategories = productCategories, // Truyền danh mục sản phẩm vào ViewModel
+				SearchQuery = query // Lưu lại query để sử dụng trong View nếu cần
+			};
+
+			return View("Shop", viewModel); // Sử dụng view Shop để hiển thị kết quả tìm kiếm
+		}
 
 
 		//public IActionResult Detail(long id)
@@ -145,7 +203,15 @@ namespace app.Controllers
 				ReviewText = review.ReviewText,
 				ReviewDate = review.ReviewDate
 			}).ToList();
-
+			
+			if(_favouriteProductDao.CheckFavouriteProduct(_userManager.GetUserId(User), product.Id) == 1)
+			{
+				ViewBag.Like = "1";
+			}
+			else
+			{
+				ViewBag.Like = "0";
+			}
 			var viewModel = new ProductDetailsViewModel
 			{
 				Product = product,
@@ -184,22 +250,22 @@ namespace app.Controllers
 		}
 		private string RunPythonScript(string scriptName, string inputJson)
 		{
-			// Đường dẫn tuyệt đối đến script Python
-			//Sửa về đúng đường dẫn của máy bản thân
-			string scriptPath = @"C:\Users\Admin\Desktop\DOAN_CS\DOAN_COSO\phantichdata_Python\" + scriptName;
+            // Đường dẫn tuyệt đối đến script Python
+            //Sửa về đúng đường dẫn của máy bản thân
+            string scriptPath = @"D:\kiemthuproject\DOAN_COSO\phantichdata_Python\" + scriptName;
 
-			// Kiểm tra xem tệp có tồn tại không
-			if (!System.IO.File.Exists(scriptPath))
+            // Kiểm tra xem tệp có tồn tại không
+            if (!System.IO.File.Exists(scriptPath))
 			{
 				throw new FileNotFoundException($"Script file '{scriptName}' not found in directory.");
 			}
 
 			ProcessStartInfo start = new ProcessStartInfo();
-			start.FileName = "python";
-			//string inputJson1 = JsonConvert.SerializeObject(inputJson);  // yourDataObject là đối tượng chứa dữ liệu bạn muốn gửi
+            start.FileName = "python";
+            //string inputJson1 = JsonConvert.SerializeObject(inputJson);  // yourDataObject là đối tượng chứa dữ liệu bạn muốn gửi
 
-			// Escape chuỗi JSON cho command line
-			inputJson = inputJson.Replace("\"", "\\\"");
+            // Escape chuỗi JSON cho command line
+            inputJson = inputJson.Replace("\"", "\\\"");
 
 			// Đặt các đối số cho script Python
 			start.Arguments = $"\"{scriptPath}\" \"{inputJson}\"";

@@ -9,6 +9,10 @@ using app.Services;
 using app.Models.Order_MoMo;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore;
+using Model.Dao;
+using app.DAO;
+//using app.Migrations;
+using System.Text.RegularExpressions;
 
 
 namespace app.Controllers
@@ -19,15 +23,16 @@ namespace app.Controllers
 
         private readonly ApplicationDbContext _context;
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly BillDao _billDao;
         private IMomoService _momoService;
 		//private readonly ShoppingCart _shoppingCart;
 
-		public BillsController(ApplicationDbContext context,UserManager<IdentityUser> userManager, IMomoService momoService)
+		public BillsController(ApplicationDbContext context,UserManager<IdentityUser> userManager, IMomoService momoService, BillDao billDao)
         {
             _context = context;
             _userManager = userManager;
             _momoService = momoService;
-
+			_billDao = billDao;
 		}
 
 
@@ -117,6 +122,7 @@ namespace app.Controllers
 			var user = await _userManager.GetUserAsync(User);
 			order.UserId = user.Id;
 			order.CreatedDate = DateTime.UtcNow;
+			order.Status = 0;
 			order.TotalPrice = cart.Items.Sum(i => i.Price * i.Quantity);
 			order.OrderDetails = cart.Items.Select(i => new OrderDetail
 			{
@@ -177,8 +183,23 @@ namespace app.Controllers
         public IActionResult PaymentCallBack()
         {
             var response = _momoService.PaymentExecuteAsync(HttpContext.Request.Query);
+			string temp = response.OrderInfo;
+            string pattern = @"Khách hàng: (\d+)";
+            Match match = Regex.Match(temp, pattern);
+			temp = match.Groups[1].Value;
+            var existingOrder = _context.Orders.Find(int.Parse(temp));
+			existingOrder.Status = 1;
+			
+			_context.SaveChanges();
             return View(response);
         }
+		[Authorize]
+		public IActionResult purchase()
+		{
+			string userId = _userManager.GetUserId(User);
+			var bills = _billDao.ListOrderByUserId(userId);
+			return View(bills);
+		}
 
     }
 }
